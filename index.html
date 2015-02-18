@@ -60,16 +60,13 @@
 				this.info.velocity.y = this.info.velocity.y * -1;
 			}
 			if(this.going){
-				this.info.opacity = this.info.opacity - 0.1;
-			}
-			if(this.info.opacity <= 0){
-				//delete dead circles
 				document.getElementById('svg').removeChild(el);
 			}
 
 			this.info.cx = this.info.cx + this.info.velocity.x*time;
 			this.info.cy = this.info.cy + this.info.velocity.y*time;
 
+			el.setAttribute("r", this.info.r);
 			el.setAttribute("cx", this.info.cx);
 			el.setAttribute("cy", this.info.cy);
 			el.setAttribute("fill-opacity", this.info.opacity);
@@ -112,13 +109,15 @@
 						&& (Math.abs(circles[circle].info.cx - circles[circle2].info.cx) < buffer) 
 						&& (Math.abs(circles[circle].info.cy - circles[circle2].info.cy) < buffer)
 					){
-						circles[circle].going = true;
-						circles[circle2].going = true;
+						if(circles[circle].info.r+circles[circle2].info.r <= 80){
+							circles[circle].info.r = circles[circle].info.r+circles[circle2].info.r;
+						}
+						//circles[circle2].going = true;
 					}
 				}
 
 				//delete dead circles
-				if(circles[circle].info.opacity <= 0){
+				if(circles[circle].going){
 					delete circles[circle];
 				}
 			}
