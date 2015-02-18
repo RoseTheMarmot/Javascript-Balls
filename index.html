@@ -20,7 +20,7 @@
 	function Circle(cx, cy, r, html_id)
 	{
 		var html_id = html_id;
-		this.info = { cx: cx,  cy: cy };
+		this.info = { cx: cx,  cy: cy, r:r, id: html_id, opacity: 1.0};
 		
 		//private function that generates a random number
 		var randomNumberBetween = function(min, max){
@@ -40,7 +40,7 @@
 				  	cy: this.info.cy,
 				  	r:  r,
 				  	id: html_id,
-				  	style: "fill: black"
+				  	style: "fill: black, fill-opacity: 1.0"
 				});
 
 			document.getElementById('svg').appendChild(circle);
@@ -59,12 +59,20 @@
 			{
 				this.info.velocity.y = this.info.velocity.y * -1;
 			}
+			if(this.going){
+				this.info.opacity = this.info.opacity - 0.1;
+			}
+			if(this.info.opacity <= 0){
+				//delete dead circles
+				document.getElementById('svg').removeChild(el);
+			}
 
 			this.info.cx = this.info.cx + this.info.velocity.x*time;
 			this.info.cy = this.info.cy + this.info.velocity.y*time;
 
 			el.setAttribute("cx", this.info.cx);
 			el.setAttribute("cy", this.info.cy);
+			el.setAttribute("fill-opacity", this.info.opacity);
 		}
 
 		//creates the SVG element and returns it
@@ -95,6 +103,24 @@
 			for(circle in circles)
 			{
 				circles[circle].update(1);
+				
+				//check for collisions
+				for(circle2 in circles){
+					var buffer = Math.max(circles[circle].info.r, circles[circle2].info.r);
+					if(
+						!(circle2 === circle)
+						&& (Math.abs(circles[circle].info.cx - circles[circle2].info.cx) < buffer) 
+						&& (Math.abs(circles[circle].info.cy - circles[circle2].info.cy) < buffer)
+					){
+						circles[circle].going = true;
+						circles[circle2].going = true;
+					}
+				}
+
+				//delete dead circles
+				if(circles[circle].info.opacity <= 0){
+					delete circles[circle];
+				}
 			}
 		}
 
@@ -124,6 +150,8 @@
 		var r =  Math.ceil(time_pressed/10);
 		playground.createNewCircle(e.x, e.y, r);
 	}
+
+
 
 	</script>
 
